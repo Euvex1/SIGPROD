@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acompanhamento de Produção</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'sans-serif'],
+                        'mono': ['Roboto Mono', 'monospace'],
+                    },
+                    colors: {
+                        'atraso-red': '#D64E4E',
+                        'emdia-green': '#4EC185',
+                        'devolucao-yellow': '#D1A72E',
+                        'bg-blue': '#102B4D',
+                        'text-light': '#F3F4F6',
+                        'text-dark': '#1F2937',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap');
+        .body-com-fundo-svg {
+            background-color: #102B4D; 
+            background-image: url('/static/painel novo producao.svg');
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+    </style>
+    
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+</head>
+<body class="body-com-fundo-svg text-text-light font-mono flex flex-col items-center justify-between min-h-screen p-4 sm:p-8">
+    <main class="w-full flex flex-col">
+        <header class="flex justify-between items-center w-full mb-8">
+            <a href="/" class="text-white hover:text-cyan-400 transition-colors" title="Voltar à seleção">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M11 15l-3-3m0 0l3-3m-3 3h8a5 5 0 015 5v1" />
+                </svg>
+            </a>
+            <h1 id="monitor-title" class="text-2xl sm:text-3xl lg:text-4xl font-bold text-center flex-grow">Acompanhamento de Produção</h1>
+            <div class="w-8"></div> <!-- Spacer to balance the back button -->
+        </header>
+
+        <section class="flex flex-col flex-grow w-full space-y-8 mt-4 sm:mt-8">
+            
+            <!-- DEVOLUÇÕES (NEW BLOCK) -->
+            <div id="devolucoes-container" class="relative flex-col items-center flex-grow-0 hidden">
+                <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 bg-white text-devolucao-yellow font-bold px-6 py-2 sm:px-10 sm:py-3 rounded-full shadow-lg text-xl sm:text-3xl z-10">
+                    DEVOLUÇÕES
+                </div>
+                <div class="bg-devolucao-yellow rounded-xl shadow-2xl mt-6 w-full pt-12 sm:pt-16 pb-6 sm:pb-8 px-4 sm:px-6">
+                    <div id="devolucoes-list" class="w-full h-full space-y-2 flex flex-col justify-end text-white">
+                        <!-- Dados das devoluções serão injetados aqui -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- EM ATRASO -->
+            <div class="relative flex-grow flex flex-col items-center">
+                <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 bg-white text-atraso-red font-bold px-6 py-2 sm:px-10 sm:py-3 rounded-full shadow-lg text-xl sm:text-3xl z-10">
+                    EM ATRASO
+                </div>
+                <div class="flex-grow bg-atraso-red rounded-xl shadow-2xl p-4 sm:p-6 flex flex-col justify-end items-start mt-6 w-full min-h-[350px] sm:min-h-[400px] lg:min-h-[500px]">
+                    <div class="absolute top-2 right-2 m-2 sm:m-4 flex space-x-2">
+                        <button id="exportDelayedBtn" class="bg-white/20 hover:bg-white/40 text-white px-3 py-1 rounded-full text-xs font-bold transition duration-300">Exportar</button>
+                        <button id="listDelayedBtn" class="bg-white/20 hover:bg-white/40 text-white px-3 py-1 rounded-full text-xs font-bold transition duration-300">Listar</button>
+                        <button id="listCompletedBtn" class="bg-white/20 hover:bg-white/40 text-white px-3 py-1 rounded-full text-xs font-bold transition duration-300">Listar Concluídos</button>
+                    </div>
+                    <div id="total-delayed" class="w-full h-full space-y-4 sm:space-y-6 flex flex-col justify-end">
+                        <span class="font-bold text-white leading-none text-left w-full">...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <!-- EM DIA -->
+                <div class="relative flex flex-col items-center flex-grow-0">
+                    <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 bg-white text-emdia-green font-bold px-6 py-2 sm:px-10 sm:py-3 rounded-full shadow-lg text-xl sm:text-3xl z-10">
+                        EM DIA
+                    </div>
+                    <div class="bg-emdia-green rounded-xl shadow-2xl mt-6 w-full pt-12 sm:pt-16 pb-10 sm:pb-12 px-4 sm:px-6">
+                        <div class="absolute top-2 right-2 m-2 sm:m-4 flex space-x-2">
+                            <button id="exportOnTimeBtn" class="bg-white/20 hover:bg-white/40 text-white px-3 py-1 rounded-full text-xs font-bold transition duration-300">Exportar</button>
+                            <button id="listOnTimeBtn" class="bg-white/20 hover:bg-white/40 text-white px-3 py-1 rounded-full text-xs font-bold transition duration-300">Listar</button>
+                            <button id="listCompletedOnTimeBtn" class="bg-white/20 hover:bg-white/40 text-white px-3 py-1 rounded-full text-xs font-bold transition duration-300">Listar Concluídos</button>
+                        </div>
+                        <div id="total-ontime" class="text-5xl sm:text-7xl lg:text-9xl font-bold text-white leading-none text-left w-full">...</div>
+                    </div>
+                    <div id="previsao-footer-container" class="bg-emdia-green rounded-b-xl shadow-2xl px-6 sm:px-8 py-1 -mt-2 text-xl sm:text-3xl font-bold text-white text-center">
+                        <p id="previsao-footer">Previsão:</p>
+                    </div>
+                </div>
+                <div class="w-full mt-2">
+                    <p class="text-right text-white text-base sm:text-2xl">Atualizado em <span id="update-timestamp">...</span></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal para listagem de itens -->
+    <div id="listModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden items-center justify-center p-4 z-50">
+        <div class="bg-bg-blue p-8 rounded-2xl shadow-2xl max-w-4xl w-full max-h-screen overflow-y-auto border border-gray-700">
+            <div class="flex justify-between items-center border-b border-gray-700 pb-4 mb-6">
+                <h4 id="modal-title" class="text-2xl font-bold text-text-light">Itens</h4>
+                <button id="closeModal" class="text-gray-400 hover:text-gray-200 transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div id="modal-filter-container" class="mb-4 hidden">
+                <label for="op-select" class="block text-sm font-medium text-gray-300 mb-2">Filtrar por OP:</label>
+                <select id="op-select" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"></select>
+            </div>
+            <div class="overflow-x-auto rounded-lg">
+                <table class="min-w-full bg-bg-blue">
+                    <thead class="bg-gray-800"><tr id="modal-table-header"></tr></thead>
+                    <tbody id="modal-table-body" class="divide-y divide-gray-700"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const API_BASE_URL = '/api';
+
+            const params = new URLSearchParams(window.location.search);
+            const monitorType = params.get('tipo') || 'corte';
+
+            const MONITOR_CONFIG = {
+                corte: { title: 'Acompanhamento de Produção - Corte', fase: 5 },
+                prensa: { title: 'Acompanhamento de Produção - Prensa', fase: 10 },
+                usinagem: { title: 'Acompanhamento de Produção - Usinagem', fase: 15 },
+                saida_montagem: { title: 'Acompanhamento - Saída p/ Montagem', fase: 998 },
+                macico: { title: 'Acompanhamento de Produção - Maciço', fase: 25 },
+                chapa: { title: 'Acompanhamento de Produção - Chapa', fase: 30 },
+                saida_pintura: { title: 'Acompanhamento - Saída p/ Pintura', fase: 999 },
+                pintura: { title: 'Acompanhamento de Produção - Pintura', fase: 35 }
+            };
+            const config = MONITOR_CONFIG[monitorType];
+            
+            document.title = config.title;
+            document.getElementById('monitor-title').textContent = config.title;
+            
+            const totalDelayedSpan = document.getElementById('total-delayed');
+            const totalOnTimeSpan = document.getElementById('total-ontime');
+            const updateTimestampSpan = document.getElementById('update-timestamp');
+            const previsaoFooter = document.getElementById('previsao-footer');
+
+            let cachedDelayed = [];
+            let cachedOnTime = [];
+            let animationInterval = null;
+            let rotatingOpCurrentIndex = 0;
+            
+            const parseLocalDate = (v) => {
+                if (!v || v === 'NaT') return null;
+                const parts = String(v).split(' ')[0].split('-');
+                if (parts.length !== 3) return null;
+                return new Date(parts[0], parts[1] - 1, parts[2]);
+            };
+            
+            const toNumber = (val) => {
+                if (typeof val === 'number') return val;
+                if (val === null || val === undefined) return 0;
+                const s = String(val).trim().replace(/\./g, '').replace(',', '.');
+                const n = parseFloat(s);
+                return Number.isFinite(n) ? n : 0;
+            };
+
+            const splitByStatus = (data) => {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const delayed = data.filter(item => {
+                    const finalDate = parseLocalDate(item.orddtprev);
+                    return finalDate && today > finalDate;
+                });
+                const ontime = data.filter(item => {
+                    const finalDate = parseLocalDate(item.orddtprev);
+                    const startDate = parseLocalDate(item.corte_dtini);
+                    return finalDate && (!startDate && finalDate >= today) || (startDate && today >= startDate && today <= finalDate);
+                });
+                return [delayed, ontime];
+            };
+
+            const renderGroup = (container, items, defaultText) => {
+                container.innerHTML = '';
+                const groups = {};
+                items.forEach(item => {
+                    const lote = item.lote_descricao || 'OSSO';
+                    if (!groups[lote]) {
+                        groups[lote] = { totalPending: 0, totalHistorico: 0, earliestDate: new Date(8640000000000000) };
+                    }
+                    groups[lote].totalPending += toNumber(item.saldo_pendente);
+                    groups[lote].totalHistorico = toNumber(item.total_historico_lote) || 0;
+                    const itemDate = parseLocalDate(item.orddtprev);
+                    if (itemDate && itemDate < groups[lote].earliestDate) groups[lote].earliestDate = itemDate;
+                });
+
+                const sortedKeys = Object.keys(groups).sort((a, b) => groups[a].earliestDate - groups[b].earliestDate);
+                const formatNumberBR = (n) => String(Math.round(toNumber(n)));
+
+                const renderSingleOpHTML = (loteKey) => {
+                    const grupo = groups[loteKey];
+                    let pct = grupo.totalHistorico > 0 ? Math.round(grupo.totalPending / grupo.totalHistorico * 100) : 0;
+                    return `<div class="text-5xl sm:text-6xl lg:text-8xl xl:text-9xl font-bold text-white leading-none text-left w-full flex items-center">
+                                <span>${loteKey.replace(/OSSO/gi, '').trim()}</span><span class="mx-2 sm:mx-4">|</span><span>${formatNumberBR(grupo.totalPending)} - ${pct}%</span></div>`;
+                };
+
+                const rotatingMonitors = ['corte', 'prensa', 'usinagem', 'saida_montagem', 'saida_pintura', 'pintura'];
+                
+                if (rotatingMonitors.includes(monitorType) && container.id === 'total-delayed') {
+                    if (animationInterval) clearInterval(animationInterval);
+
+                    // Lógica para Saída para Pintura (2 OPs)
+                    if (monitorType === 'saida_pintura' && sortedKeys.length > 2) {
+                        const opsToRotate = sortedKeys.slice(0, sortedKeys.length - 1);
+                        const fixedOp = sortedKeys[sortedKeys.length - 1];
+                        container.innerHTML = `<div id="rotating-op-container"></div>` + renderSingleOpHTML(fixedOp);
+                        
+                        const rotatingContainer = document.getElementById('rotating-op-container');
+                        const updateRotatingOp = () => {
+                            if (document.body.contains(rotatingContainer)) {
+                                const keyToShow = opsToRotate[rotatingOpCurrentIndex % opsToRotate.length];
+                                rotatingContainer.innerHTML = renderSingleOpHTML(keyToShow);
+                                rotatingOpCurrentIndex++;
+                            } else {
+                                clearInterval(animationInterval);
+                            }
+                        };
+                        updateRotatingOp();
+                        animationInterval = setInterval(updateRotatingOp, 3750);
+                    
+                    // Lógica para outros monitores (3 OPs)
+                    } else if (monitorType !== 'saida_pintura' && sortedKeys.length > 3) {
+                        const opsToRotate = sortedKeys.slice(0, sortedKeys.length - 2); 
+                        const fixedOp1 = sortedKeys[sortedKeys.length - 2]; 
+                        const fixedOp2 = sortedKeys[sortedKeys.length - 1];
+                        container.innerHTML = `<div id="rotating-op-container"></div>` + renderSingleOpHTML(fixedOp1) + renderSingleOpHTML(fixedOp2);
+                        
+                        const rotatingContainer = document.getElementById('rotating-op-container');
+                        const updateRotatingOp = () => {
+                            if (document.body.contains(rotatingContainer)) {
+                                const keyToShow = opsToRotate[rotatingOpCurrentIndex % opsToRotate.length];
+                                rotatingContainer.innerHTML = renderSingleOpHTML(keyToShow);
+                                rotatingOpCurrentIndex++;
+                            } else {
+                                clearInterval(animationInterval);
+                            }
+                        };
+                        updateRotatingOp();
+                        animationInterval = setInterval(updateRotatingOp, 3750);
+
+                    // Fallback para casos que não precisam de rotação
+                    } else {
+                        if (sortedKeys.length > 0) {
+                            container.innerHTML = sortedKeys.map(key => renderSingleOpHTML(key)).join('');
+                        } else {
+                            container.innerHTML = `<div class="text-4xl sm:text-6xl font-bold text-white">${defaultText}</div>`;
+                        }
+                    }
+                } else {
+                     if (sortedKeys.length > 0) {
+                        container.innerHTML = sortedKeys.map(key => renderSingleOpHTML(key)).join('');
+                    } else {
+                        container.innerHTML = `<div class="text-4xl sm:text-6xl font-bold text-white">${defaultText}</div>`;
+                    }
+                }
+            };
+
+            const renderDevolucoes = (data) => {
+                const container = document.getElementById('devolucoes-list');
+                if (!data || data.length === 0) {
+                    container.innerHTML = `<div class="text-2xl font-bold text-center w-full">Nenhuma devolução encontrada.</div>`;
+                    return;
+                }
+
+                container.innerHTML = data.map(item => {
+                    const lote = (item.lote_descricao || '').replace(/OSSO/gi, '').trim();
+                    return `
+                        <div class="text-3xl font-bold w-full flex justify-between items-center border-b border-white/30 py-1">
+                            <span class="truncate pr-4">${lote} ${item.descricao}</span>
+                            <span>${item.data} | ${Math.round(toNumber(item.quantidade))}</span>
+                        </div>
+                    `
+                }).join('');
+            };
+
+            const fetchData = async () => {
+                try {
+                    const ts = Date.now();
+                    const resp = await fetch(`${API_BASE_URL}/data?fase=${config.fase}&ts=${ts}`, { cache: 'no-store' });
+                    if (!resp.ok) throw new Error('Falha ao buscar dados');
+                    const responseData = await resp.json();
+
+                    let summaryData, detailData;
+                    if (responseData.is_grouped) {
+                        summaryData = responseData.summary;
+                        detailData = responseData.details;
+                    } else {
+                        summaryData = responseData.data;
+                        detailData = responseData.data;
+                    }
+
+                    renderSummary(summaryData);
+                    [cachedDelayed, cachedOnTime] = splitByStatus(detailData);
+
+                    if (monitorType === 'saida_pintura') {
+                        const devolucoesResp = await fetch(`${API_BASE_URL}/devolucoes?fase=${config.fase}&ts=${Date.now()}`);
+                        if (!devolucoesResp.ok) throw new Error('Falha ao buscar devoluções');
+                        const devolucoesData = await devolucoesResp.json();
+                        renderDevolucoes(devolucoesData);
+                    }
+
+                } catch (error) {
+                    console.error('Erro ao buscar dados:', error);
+                    totalDelayedSpan.textContent = 'ERRO';
+                    totalOnTimeSpan.textContent = 'ERRO';
+                }
+            };
+            
+            const renderSummary = (data) => {
+                const [delayedItems, onTimeItems] = splitByStatus(data);
+                renderGroup(totalDelayedSpan, delayedItems, 'Nenhum item em atraso');
+                renderGroup(totalOnTimeSpan, onTimeItems, 'Nenhum item para hoje');
+                
+                if (onTimeItems.length > 0) {
+                    const firstOnTime = onTimeItems.sort((a,b) => (parseLocalDate(a.corte_dtini) || 0) - (parseLocalDate(b.corte_dtini) || 0))[0];
+                    const d = parseLocalDate(firstOnTime.orddtprev);
+                    previsaoFooter.textContent = `Previsão: ${d ? d.toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : 'N/A'}`;
+                } else {
+                    previsaoFooter.textContent = 'Previsão:';
+                }
+                updateTimestampSpan.textContent = new Date().toLocaleString('pt-BR');
+            };
+
+            const setupModalAndButtons = () => {
+                const listModal = document.getElementById('listModal');
+                const closeModalBtn = document.getElementById('closeModal');
+                const modalTableBody = document.getElementById('modal-table-body');
+                const modalTableHeader = document.getElementById('modal-table-header');
+                const modalTitle = document.getElementById('modal-title');
+                const modalFilterContainer = document.getElementById('modal-filter-container');
+                const opSelect = document.getElementById('op-select');
+                let completedDataCache = [];
+                
+                const populateModal = (data, title, columns, fields) => {
+                    modalTitle.textContent = title;
+                    modalTableHeader.innerHTML = columns.map(c => `<th class="py-3 px-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">${c}</th>`).join('');
+                    
+                    const createRow = (item) => '<tr>' + fields.map(field => {
+                        let val = item[field] || '';
+                        if (field.includes('data') || field.includes('dt')) {
+                            val = parseLocalDate(val)?.toLocaleDateString('pt-BR', {timeZone: 'UTC'}) || '';
+                        } else if (field === 'lote_descricao') {
+                            val = String(val).replace(/OSSO/gi, '').trim();
+                        }
+                        return `<td class="py-2 px-4 text-gray-300">${val}</td>`;
+                    }).join('') + '</tr>';
+
+                    modalTableBody.innerHTML = data.length > 0
+                        ? data.map(createRow).join('')
+                        : `<tr><td colspan="${columns.length}" class="py-4 text-center text-gray-500">Nenhum item.</td></tr>`;
+                    
+                    listModal.classList.remove('hidden');
+                    listModal.classList.add('flex');
+                };
+
+                closeModalBtn.addEventListener('click', () => {
+                    listModal.classList.add('hidden');
+                    modalFilterContainer.classList.add('hidden');
+                    opSelect.onchange = null;
+                });
+
+                document.getElementById('listDelayedBtn').addEventListener('click', () => {
+                    const columns = ['Ordem', 'Produto', 'Descrição', 'Saldo', 'Previsão Fim'];
+                    const fields = ['ordem', 'produto', 'descricao', 'saldo_pendente', 'orddtprev'];
+                    if (monitorType === 'saida_pintura' || monitorType === 'saida_montagem') {
+                        columns.splice(1, 0, 'Nº Reserva');
+                        fields.splice(1, 0, 'reqnumero');
+                    }
+                    const delayedOps = [...new Set(cachedDelayed.map(item => item.lote_descricao || ''))].filter(Boolean);
+                    opSelect.innerHTML = '<option value="all">Todas as OPs</option>';
+                    delayedOps.forEach(op => {
+                        opSelect.innerHTML += `<option value="${op}">${op.replace(/OSSO/gi, '').trim() || 'Sem Lote'}</option>`;
+                    });
+                    modalFilterContainer.classList.toggle('hidden', delayedOps.length === 0);
+                    populateModal(cachedDelayed, 'Itens em Atraso', columns, fields);
+                    opSelect.onchange = () => {
+                        const selectedOp = opSelect.value;
+                        const filteredData = selectedOp === 'all' ? cachedDelayed : cachedDelayed.filter(item => (item.lote_descricao || '') === selectedOp);
+                        const title = selectedOp === 'all' ? 'Itens em Atraso (Todas as OPs)' : `Atrasados - ${selectedOp.replace(/OSSO/gi, '').trim()}`;
+                        populateModal(filteredData, title, columns, fields);
+                    };
+                });
+
+                document.getElementById('listOnTimeBtn').addEventListener('click', () => {
+                    modalFilterContainer.classList.add('hidden');
+                    const columns = ['Ordem', 'Produto', 'Descrição', 'Saldo', 'Previsão Fim'];
+                    const fields = ['ordem', 'produto', 'descricao', 'saldo_pendente', 'orddtprev'];
+                    if (monitorType === 'saida_pintura' || monitorType === 'saida_montagem') {
+                        columns.splice(1, 0, 'Nº Reserva');
+                        fields.splice(1, 0, 'reqnumero');
+                    }
+                    populateModal(cachedOnTime, 'Itens em Dia', columns, fields);
+                });
+
+                const listCompletedHandler = async (items, status) => {
+                    const lotes = [...new Set(items.map(item => item.lote_descricao || ''))].filter(Boolean);
+                    if (lotes.length === 0) {
+                        populateModal([], `Nenhuma OP ${status} para verificar`, ['-'], ['-']);
+                        modalFilterContainer.classList.add('hidden');
+                        return;
+                    }
+                    try {
+                        const resp = await fetch(`${API_BASE_URL}/completed?fase=${config.fase}&lotes=${encodeURIComponent(lotes.join(','))}&ts=${Date.now()}`);
+                        if (!resp.ok) throw new Error(`Server responded with ${resp.status}`);
+                        completedDataCache = await resp.json();
+                        opSelect.innerHTML = '<option value="all">Todas as OPs</option>';
+                        lotes.forEach(op => {
+                            opSelect.innerHTML += `<option value="${op}">${op.replace(/OSSO/gi, '').trim() || 'Sem Lote'}</option>`;
+                        });
+                        modalFilterContainer.classList.remove('hidden');
+                        const columns = ['OP', 'Ordem', 'Descrição', 'Qtd Produzida', 'Qtd Total', 'Data Conclusão'];
+                        const fields = ['lote_descricao', 'ordem', 'descricao', 'qtd_produzida', 'ordquanti', 'data_conclusao'];
+                        if (monitorType === 'saida_pintura' || monitorType === 'saida_montagem') {
+                            columns.splice(2, 0, 'Nº Reserva');
+                            fields.splice(2, 0, 'reqnumero');
+                        }
+                        populateModal(completedDataCache, `Itens Concluídos (${status})`, columns, fields);
+                        opSelect.onchange = () => {
+                            const selectedOp = opSelect.value;
+                            const filteredData = selectedOp === 'all' ? completedDataCache : completedDataCache.filter(item => item.lote_descricao === selectedOp);
+                            const title = selectedOp === 'all' ? `Itens Concluídos (${status})` : `Concluídos - ${selectedOp.replace(/OSSO/gi, '').trim()}`;
+                            populateModal(filteredData, title, columns, fields);
+                        };
+                    } catch (err) { console.error("Erro ao buscar concluídos", err); }
+                };
+
+                document.getElementById('listCompletedBtn').addEventListener('click', () => listCompletedHandler(cachedDelayed, 'Em Atraso'));
+                document.getElementById('listCompletedOnTimeBtn').addEventListener('click', () => listCompletedHandler(cachedOnTime, 'Em Dia'));
+
+                document.getElementById('exportDelayedBtn').addEventListener('click', () => window.location.href = `${API_BASE_URL}/export?status=delayed&fase=${config.fase}`);
+                document.getElementById('exportOnTimeBtn').addEventListener('click', () => window.location.href = `${API_BASE_URL}/export?status=ontime&fase=${config.fase}`);
+            };
+            
+            // Exibe o container de devoluções se for o monitor correto
+            if (monitorType === 'saida_pintura') {
+                document.getElementById('devolucoes-container').classList.remove('hidden');
+            }
+
+            fetchData();
+            setInterval(fetchData, 15000);
+            setupModalAndButtons();
+        });
+    </script>
+</body>
+</html>
+
