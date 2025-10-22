@@ -1,0 +1,7 @@
+Flask
+Flask-Cors
+pandas
+SQLAlchemy
+psycopg2-binary
+python-dotenv
+openpyxl
