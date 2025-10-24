@@ -1,6 +1,0 @@
-            listDelayedBtn.addEventListener('click', () => {
-                const today = new Date();
-                const delayedOrders = allData.filter(item => new Date(item.orddtprev) < today);
-                const columns = ['Ordem', 'Produto', 'Descrição', 'Saldo Pendente', 'Data Previsão'];
-                populateModal(delayedOrders, 'Itens em Atraso', columns);
-            });
