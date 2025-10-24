@@ -1,0 +1,45 @@
+/* Passo 1: Baixe a família de fontes "Roboto Mono" do Google Fonts.
+  (https://fonts.google.com/specimen/Roboto+Mono)
+  
+  Passo 2: Descompacte o arquivo .zip que você baixou.
+  
+  Passo 3: Crie uma pasta chamada "fonts" dentro da sua pasta "static".
+  
+  Passo 4: Copie os arquivos da fonte (ex: RobotoMono-Regular.ttf, RobotoMono-Bold.ttf)
+           para dentro da pasta "static/fonts".
+           
+  Passo 5: O código abaixo já está configurado para encontrar as fontes nesse local.
+*/
+
+@font-face {
+    font-family: 'Roboto Mono';
+    src: url('../fonts/RobotoMono-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Roboto Mono';
+    src: url('../fonts/RobotoMono-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Roboto Mono';
+    src: url('../fonts/RobotoMono-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+
+/* Estilos principais da aplicação */
+.body-com-fundo-svg {
+    background-color: #102B4D;
+    background-image: url('../painel novo producao.svg');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    font-family: 'Roboto Mono', monospace;
+}
