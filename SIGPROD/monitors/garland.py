@@ -31,13 +31,14 @@ def get_query(fq, lot_table, ord_col, qtd_col):
 
             UNION
 
-            -- Seleciona ordens de Petra para produtos específicos com prioridade '1'
+            -- Seleciona ordens de Petra para produtos que contêm na descrição os códigos específicos com prioridade '1'
             SELECT o.ordem
             FROM {fq('ordem')} o
             JOIN {fq(lot_table)} l ON o.lotcod = l.lotcod
             JOIN {fq('produto')} p ON o.ordproduto = p.produto
             WHERE l.lotdes ILIKE '%Petra%'
-              AND p.produto IN ('PT105', 'PT102', 'PT107', 'PF107', 'PT100')
+              AND (p.pronome ILIKE '%PT105%' OR p.pronome ILIKE '%PT102%' OR p.pronome ILIKE '%PT107%'
+                   OR p.pronome ILIKE '%PF107%' OR p.pronome ILIKE '%PT100%')
               AND p.prodpriem = '1'
         ),
         Qtd_Produzida AS (
@@ -112,13 +113,14 @@ def get_completed_query(fq, lot_table, ord_col, qtd_col, lote_filter_clause=""):
 
             UNION
 
-            -- Seleciona ordens de Petra para produtos específicos com prioridade '1'
+            -- Seleciona ordens de Petra para produtos que contêm na descrição os códigos específicos com prioridade '1'
             SELECT o.ordem
             FROM {fq('ordem')} o
             JOIN {fq(lot_table)} l ON o.lotcod = l.lotcod
             JOIN {fq('produto')} p ON o.ordproduto = p.produto
             WHERE l.lotdes ILIKE '%Petra%'
-              AND p.produto IN ('PT105', 'PT102', 'PT107', 'PF107', 'PT100')
+              AND (p.pronome ILIKE '%PT105%' OR p.pronome ILIKE '%PT102%' OR p.pronome ILIKE '%PT107%'
+                   OR p.pronome ILIKE '%PF107%' OR p.pronome ILIKE '%PT100%')
               AND p.prodpriem = '1'
         ),
         Qtd_Produzida AS (

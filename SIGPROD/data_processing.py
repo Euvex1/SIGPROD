@@ -25,12 +25,13 @@ def process_data_generic(df: pd.DataFrame, fase: int) -> pd.DataFrame:
 
     # O nome da fase para o parsing das datas pode ser diferente do nome do monitor.
     phase_parse_key_map = {
-        5: 'CORTE', 
-        10: 'PRENSA', 
-        15: 'USINAGEM', 
+        5: 'CORTE',
+        10: 'PRENSA',
+        15: 'USINAGEM',
         25: 'MONTAGEM',
         30: 'MONTAGEM',
         35: 'ACABAMENTO',
+        40: 'GARLANDACABAMENTO',  # Template para o monitor Garland
         998: 'MONTAGEMSEP', # Chave para Saida para Montagem
         999: 'PREACABAMENT'  # Chave EXATA para o monitor Saída para Pintura
     }
