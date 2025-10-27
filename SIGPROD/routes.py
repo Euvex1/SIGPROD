@@ -57,21 +57,21 @@ def register_routes(app):
     
     @app.route('/api/garland_data', methods=['GET'])
     def get_garland_data():
-        """API específica para o monitor Garland usando fase 35"""
+        """API específica para o monitor Garland usando fase 40"""
         lot_table = get_lot_table()
-        if not table_exists(lot_table): 
+        if not table_exists(lot_table):
             return jsonify({"error": f"Tabela de lote '{lot_table}' não encontrada"}), 500
-        
+
         ord_col, qtd_col = _pasfase_columns()
         query = garland.get_query(fq, lot_table, ord_col, qtd_col)
-        df, error = fetch_data_from_db(query, params={'fase': 35})
-        if error: 
+        df, error = fetch_data_from_db(query, params={'fase': 40})
+        if error:
             return jsonify({"error": error}), 500
-        
+
         if df is None or df.empty:
             return jsonify({"is_grouped": False, "data": []})
 
-        df_processed = garland.process_data(df.copy(), 35)
+        df_processed = garland.process_data(df.copy(), 40)
 
         # Para Garland, aplicar agrupamento como outros monitores
         if not df_processed.empty:
