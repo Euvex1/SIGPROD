@@ -64,7 +64,7 @@ def register_routes(app):
 
         ord_col, qtd_col = _pasfase_columns()
         query = garland.get_query(fq, lot_table, ord_col, qtd_col)
-        df, error = fetch_data_from_db(query, params={'fase': 40})
+        df, error = fetch_data_from_db(query, params=None)
         if error:
             return jsonify({"error": error}), 500
 
@@ -241,7 +241,12 @@ def register_routes(app):
         if not table_exists(lot_table): 
             return jsonify({"error": f"Tabela de lote '{lot_table}' não encontrada"}), 500
         
-        params = {'fase': fase}
+        # Garland (fase 40) não usa parâmetro fase, apenas lotes
+        if fase == 40:
+            params = {}
+        else:
+            params = {'fase': fase}
+
         lote_filter_clause = ""
         if lotes_param:
             lotes_list = [lote.strip() for lote in lotes_param.split(',') if lote.strip()]
@@ -262,15 +267,15 @@ def register_routes(app):
             998: saida_montagem,
             999: saida_pintura
         }
-        
+
         monitor_module = monitor_modules.get(fase)
         if not monitor_module:
             return jsonify({"error": f"Monitor não encontrado para fase {fase}"}), 400
 
         ord_col, qtd_col = _pasfase_columns()
         query = monitor_module.get_completed_query(fq, lot_table, ord_col, qtd_col, lote_filter_clause)
-        
-        df, error = fetch_data_from_db(query, params=params)
+
+        df, error = fetch_data_from_db(query, params=params if params else None)
         if error: 
             return jsonify({"error": str(error)}), 500
         
