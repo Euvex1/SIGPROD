@@ -48,7 +48,6 @@ def get_query(fq, lot_table, ord_col, qtd_col):
                 SUM(COALESCE(m.priquanti, 0)) as qtd_produzida
             FROM {fq('toqmovi')} m
             WHERE m.pritransac = '3' -- Baixa de produção
-              AND EXISTS (SELECT 1 FROM OPs_Prioritarias op WHERE op.ordem = m.priordem)
             GROUP BY m.priordem
         ),
         total_historico_por_lote AS (
