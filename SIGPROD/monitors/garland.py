@@ -82,6 +82,7 @@ def get_query(fq, lot_table, ord_col, qtd_col):
         LEFT JOIN total_historico_por_lote th ON th.lotdes = l.lotdes
         WHERE GREATEST(o.ordquanti - COALESCE(qp.qtd_produzida, 0), 0) > 0
           AND o.orddtence = DATE '0001-01-01' -- Considera apenas ordens em aberto
+          AND (%(fase)s IS NULL OR %(fase)s IS NOT NULL) -- Aceita parâmetro fase sem filtrar
     """
 
 def get_completed_query(fq, lot_table, ord_col, qtd_col, lote_filter_clause=""):
@@ -147,7 +148,8 @@ def get_completed_query(fq, lot_table, ord_col, qtd_col, lote_filter_clause=""):
         JOIN {fq('produto')} p ON o.ordproduto = p.produto
         JOIN {fq(lot_table)} l ON o.lotcod = l.lotcod
         LEFT JOIN Qtd_Produzida qp ON TRIM(CAST(o.ordem AS TEXT)) = qp.ordem
-        WHERE COALESCE(qp.qtd_produzida, 0) > 0 
+        WHERE COALESCE(qp.qtd_produzida, 0) > 0
+          AND (%(fase)s IS NULL OR %(fase)s IS NOT NULL) -- Aceita parâmetro fase sem filtrar
         {lote_filter_clause}
         ORDER BY data_conclusao DESC, o.ordem
     """
